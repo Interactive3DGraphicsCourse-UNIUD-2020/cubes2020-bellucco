@@ -30,7 +30,10 @@
 		var data;
 		var gridX, gridZ;
 		var terrain = new Array();
-		var latocubo = 0.9;
+		var latocubo = 1;
+		var m = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+		var g;
+		var cube;
 
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
@@ -77,19 +80,13 @@
 			
 			camera.position.set(20,60,80);
 			camera.lookAt( new THREE.Vector3(0,0,0));
-			
-			var geometry = new THREE.CubeGeometry(1,1,1);
-			var material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
-			var cube = new THREE.Mesh( geometry, material );
-						
-			scene.add(cube);
-
+			/*
 			hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
 			hemiLight.color.setHSL( 0.6, 1, 0.6 );
 			hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 			hemiLight.position.set( 0, 500, 0 );
 			scene.add( hemiLight );
-
+			*/
 			dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
 			dirLight.color.setHSL( 0.1, 1, 0.95 );
 			dirLight.position.set( -1, 1.75, 1 );
@@ -115,7 +112,7 @@
 
 			var imgLoader = new THREE.ImageLoader();
 
-			var img = imgLoader.load("textures/hm6.png",
+			var img = imgLoader.load("textures/hm7.png",
 				//onload callback
 				function (image) {
 					data = getHeightData(image, 0.1);
@@ -137,16 +134,13 @@
 		}
 		
 		function Render() {
+			
 			if(loadedHeightMap) {
 				//camera.lookAt(new THREE.Vector3(gridX/2, 0, gridZ/2));
 				
 				console.log(terrain.length);
 				if(terrain.length == 0) {
 					console.log(gridX, gridZ);
-					var m = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-					var g;
-					var cube;
-
 					var num = 0;
 					for(i=0; i<gridX; i++) {
 						terrain[i] = new Array();
@@ -170,11 +164,12 @@
 							scene.add(cube);
 						}
 					}
-				} else {
-					for(i=0; i<terrain.length; i++)
-						for(j=0; j<terrain[i].length; j++)
-							scene.add(terrain[i][j]);
 				}
+				/* else {
+					for(i=0; i<terrain.length; i++)
+						for(j=0; j<terrain[i].length; j++) {}
+							//scene.add(terrain[i][j]);
+				}*/
 			};
 			renderer.render(scene, camera);
 		}
