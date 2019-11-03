@@ -26,7 +26,12 @@
 		<script>
 		
 		var scene, camera, renderer, controls, stats;
-		
+		var loadedHeightMap = false;
+		var data;
+		var gridX, gridZ;
+		var terrain = new Array();
+		var latocubo = 0.9;
+
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
   
@@ -38,6 +43,8 @@
 		    var context = canvas.getContext( '2d' );
  
 		    var size = img.width * img.height;
+			gridX = img.width;
+			gridZ = img.height;
 			console.log(size);
 		    var data = new Float32Array( size );
  
@@ -52,8 +59,8 @@
  
 		    var j=0;
 		    for (var i = 0; i<pix.length; i +=4) {
-		        var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
-		        data[j++] = scale*all/3;   
+		        var all = pix[i]+pix[i+1]+pix[i+2];
+		        data[j++] = all*scale/3;
 		    }
      
 		    return data;
@@ -68,40 +75,60 @@
 			renderer.setClearColor( 0xf0f0f0 );
 			document.body.appendChild( renderer.domElement );
 			
-			camera.position.set(3,4,6);
+			camera.position.set(20,60,80);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 			
-			var geometry = new THREE.BoxGeometry(1,1,1);
+			var geometry = new THREE.CubeGeometry(1,1,1);
 			var material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
 			var cube = new THREE.Mesh( geometry, material );
-			
-			scene.add( cube );
-			
+						
+			scene.add(cube);
+
+			hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+			hemiLight.color.setHSL( 0.6, 1, 0.6 );
+			hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+			hemiLight.position.set( 0, 500, 0 );
+			scene.add( hemiLight );
+
+			dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+			dirLight.color.setHSL( 0.1, 1, 0.95 );
+			dirLight.position.set( -1, 1.75, 1 );
+			dirLight.position.multiplyScalar( 50 );
+			scene.add( dirLight );
+			dirLight.castShadow = true;
+			dirLight.shadow.mapSize.width = 1024;
+			dirLight.shadow.mapSize.height = 1024;
+
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
 			stats.domElement.style.top = '0px';
 			document.body.appendChild( stats.domElement );
 			
 			// uncomment if you need to draw coordinate axes when building the scene
-			//Coordinates.drawAllAxes();
+			Coordinates.drawAllAxes();
 			
 			controls = new THREE.OrbitControls( camera );
-			controls.addEventListener( 'change', Render );
-			
-			// terrain
-			var img = new Image();
-			img.onload = function () {
-  
-				//get height data from img
-				var data = getHeightData(img,0.1);
-  
-				// load img source
-				img.src = "textures/heightmap2.png";
-			}
-			
 			
 		}
 		
+		function Loader() {
+
+			var imgLoader = new THREE.ImageLoader();
+
+			var img = imgLoader.load("textures/hm6.png",
+				//onload callback
+				function (image) {
+					data = getHeightData(image, 0.1);
+					console.log("data:", data);
+					loadedHeightMap = true;
+				},
+				//progress callback
+				undefined,
+				//onerror callback
+				function () { console.error('An error happened.'); }
+			);
+		}
+
 		function Update() {
 			requestAnimationFrame( Update );
 			controls.update();  
@@ -110,10 +137,49 @@
 		}
 		
 		function Render() {
-			
+			if(loadedHeightMap) {
+				//camera.lookAt(new THREE.Vector3(gridX/2, 0, gridZ/2));
+				
+				console.log(terrain.length);
+				if(terrain.length == 0) {
+					console.log(gridX, gridZ);
+					var m = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+					var g;
+					var cube;
+
+					var num = 0;
+					for(i=0; i<gridX; i++) {
+						terrain[i] = new Array();
+						for(j=0; j<gridZ; j++) {
+							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) g = new THREE.BoxGeometry(latocubo, data[num], latocubo);
+							else if(data[num+1]<data[num] || data[num-1]<data[num]
+									|| data[num+gridX]<data[num] || data[num-gridX]<data[num]) 
+								g = new THREE.BoxGeometry(latocubo, data[num], latocubo);
+							else g = new THREE.BoxGeometry(latocubo, latocubo, latocubo);
+							
+							cube = new THREE.Mesh(g, m);
+							cube.position.x = i;
+							cube.position.z = j;
+							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) cube.position.y = data[num]/2;
+							else if(data[num+1]<data[num] || data[num-1]<data[num]
+									|| data[num+gridX]<data[num] || data[num-gridX]<data[num]) 
+								cube.position.y = data[num]/2;
+							else cube.position.y = data[num]-latocubo/2;
+							terrain[i][j] = cube;
+							num++;
+							scene.add(cube);
+						}
+					}
+				} else {
+					for(i=0; i<terrain.length; i++)
+						for(j=0; j<terrain[i].length; j++)
+							scene.add(terrain[i][j]);
+				}
+			};
 			renderer.render(scene, camera);
 		}
 		
+		Loader();
 		Start();
 		Update();
 			
