@@ -31,9 +31,15 @@
 		var gridX, gridZ;
 		var terrain = new Array();
 		var latocubo = 1;
-		var m = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-		var g;
-		var cube;
+		var imgl = new THREE.TextureLoader();
+		var grass = new THREE.MeshPhongMaterial({map: imgl.load("textures/grass.jpg")});
+		var side = new THREE.MeshPhongMaterial({map: imgl.load("textures/side.jpg")});
+		//var dirt = new THREE.MeshPhongMaterial({map: imgl.load("textures/dirt.jpg")});
+		var earthcube = [side, side, grass, side, side, side];
+
+		//var m = new THREE.MeshPhongMaterial({ map: img });
+		var g = new THREE.BoxGeometry(latocubo, latocubo, latocubo);
+		//var cube = new THREE.Mesh(g, earthcube);
 
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
@@ -109,10 +115,10 @@
 		}
 		
 		function Loader() {
-
+			data = new Array();
 			var imgLoader = new THREE.ImageLoader();
 
-			var img = imgLoader.load("textures/hm7.png",
+			var img = imgLoader.load("textures/hm8.jpg",
 				//onload callback
 				function (image) {
 					data = getHeightData(image, 0.1);
@@ -124,6 +130,7 @@
 				//onerror callback
 				function () { console.error('An error happened.'); }
 			);
+
 		}
 
 		function Update() {
@@ -142,26 +149,83 @@
 				if(terrain.length == 0) {
 					console.log(gridX, gridZ);
 					var num = 0;
-					for(i=0; i<gridX; i++) {
+					/*for(i=0; i<gridX; i++) {
 						terrain[i] = new Array();
 						for(j=0; j<gridZ; j++) {
-							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) g = new THREE.BoxGeometry(latocubo, data[num], latocubo);
-							else if(data[num+1]<data[num] || data[num-1]<data[num]
-									|| data[num+gridX]<data[num] || data[num-gridX]<data[num]) 
-								g = new THREE.BoxGeometry(latocubo, data[num], latocubo);
+							if(i==gridX-1 
+								|| j==gridZ-1 
+								|| i==0 
+								|| j==0) 
+								g = new THREE.BoxGeometry(latocubo, Math.floor(data[num]), latocubo);
+							else if(data[num+1]<data[num] 
+								|| data[num-1]<data[num]
+								|| data[num+gridX]<data[num] 
+								|| data[num-gridX]<data[num])
+								g = new THREE.BoxGeometry(latocubo, Math.floor(data[num]), latocubo);
 							else g = new THREE.BoxGeometry(latocubo, latocubo, latocubo);
 							
 							cube = new THREE.Mesh(g, m);
 							cube.position.x = i;
 							cube.position.z = j;
-							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) cube.position.y = data[num]/2;
-							else if(data[num+1]<data[num] || data[num-1]<data[num]
-									|| data[num+gridX]<data[num] || data[num-gridX]<data[num]) 
-								cube.position.y = data[num]/2;
-							else cube.position.y = data[num]-latocubo/2;
+
+							var alt = Math.floor(data[num]);
+							if(i==gridX-1 
+								|| j==gridZ-1 
+								|| i==0 
+								|| j==0) 
+								cube.position.y = alt==0? latocubo/2 : alt/2;
+							else if(Math.floor(data[num+1])<Math.floor(data[num]) 
+								|| Math.floor(data[num-1])<Math.floor(data[num])
+								|| Math.floor(data[num+gridX])<Math.floor(data[num])
+								|| Math.floor(data[num-gridX])<Math.floor(data[num])) 
+								cube.position.y = alt==0? latocubo/2 : alt/2;
+							else cube.position.y = alt==0? latocubo/2 : alt-latocubo/2;
 							terrain[i][j] = cube;
 							num++;
 							scene.add(cube);
+						}
+					}*/
+					for(i=0; i<gridX; i++) {
+						terrain[i] = new Array();
+						for(j=0; j<gridZ; j++) {
+							terrain[i][j] = new Array();
+
+							var alt = Math.floor(data[num]);
+
+							cube = new THREE.Mesh(g, earthcube);
+							cube.position.x = i;
+							cube.position.z = j;
+							cube.position.y = alt==0? latocubo/2 : alt-latocubo/2;
+							terrain[i][j][0] = cube;
+							scene.add(cube);
+
+							
+							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) {
+								for(w=0; w<(alt-latocubo/latocubo); w++) {
+									cube2 = new THREE.Mesh(g, earthcube);
+									cube2.position.x = i;
+									cube2.position.z = j;
+									cube2.position.y = latocubo/2 + w;
+									terrain[i][j][w+1] = cube2;
+									scene.add(cube2);
+								}
+							}
+							else if(Math.floor(data[num+1])<Math.floor(data[num]) 
+								|| Math.floor(data[num-1])<Math.floor(data[num])
+								|| Math.floor(data[num+gridX])<Math.floor(data[num])
+								|| Math.floor(data[num-gridX])<Math.floor(data[num])) 
+								{
+									var maxdiff = Math.min(Math.floor(data[num+1]), Math.floor(data[num-1]), Math.floor(data[num+gridX]), Math.floor(data[num-gridX]));
+									for(w=(maxdiff); w<(alt-latocubo/latocubo); w++) {
+										cube2 = new THREE.Mesh(g, earthcube);
+										cube2.position.x = i;
+										cube2.position.z = j;
+										cube2.position.y = latocubo/2 + w;
+										terrain[i][j][w+1] = cube2;
+										scene.add(cube2);
+								}
+							}
+							num++;
 						}
 					}
 				}
