@@ -36,21 +36,21 @@
 		var loadedtree = false;
 		var tree;
 		var planted = 0;
-		var toplant = new Array(14);
+		var toplant = new Array(30);
 		
 		var latocubo = 1;
 
 		var imgl = new THREE.TextureLoader();
-		var grass = new THREE.MeshPhongMaterial({map: imgl.load("textures/grass.jpg")});
-		var side = new THREE.MeshPhongMaterial({map: imgl.load("textures/side.jpg")});
-		var dirt = new THREE.MeshPhongMaterial({map: imgl.load("textures/dirt.jpg")});
-		var stone = new THREE.MeshPhongMaterial({map: imgl.load("textures/stone.jpg")})
-		var obsidian = new THREE.MeshPhongMaterial({map: imgl.load("textures/obsidian.jpg")})
-		var water = new THREE.MeshPhongMaterial({map: imgl.load("textures/water.png")})
+		var grass = new THREE.MeshLambertMaterial({map: imgl.load("textures/grass.jpg")});
+		var side = new THREE.MeshLambertMaterial({map: imgl.load("textures/side.jpg")});
+		var dirt = new THREE.MeshLambertMaterial({map: imgl.load("textures/dirt.jpg")});
+		var stone = new THREE.MeshLambertMaterial({map: imgl.load("textures/stone.jpg")})
+		var obsidian = new THREE.MeshLambertMaterial({map: imgl.load("textures/obsidian.jpg")})
+		var water = new THREE.MeshLambertMaterial({map: imgl.load("textures/water.png")})
 		var earthcube = [side, side, grass, side, side, side];
 
-		var wood = new THREE.MeshPhongMaterial({map: imgl.load("textures/wood.jpg")});
-		var leaves = new THREE.MeshPhongMaterial({map: imgl.load("textures/leaves.png")})
+		var wood = new THREE.MeshLambertMaterial({map: imgl.load("textures/wood.jpg")});
+		var leaves = new THREE.MeshLambertMaterial({map: imgl.load("textures/leaves.png")})
 		
 		var g = new THREE.BoxGeometry(latocubo, latocubo, latocubo);
 		
@@ -66,7 +66,7 @@
 		    var size = img.width * img.height;
 			gridX = img.width;
 			gridZ = img.height;
-			console.log(size);
+			//console.log(size);
 		    var data = new Float32Array( size );
  
 		    context.drawImage(img,0,0);
@@ -94,17 +94,16 @@
 			renderer = new THREE.WebGLRenderer( {antialias: true} );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.setClearColor( 0xf0f0f0 );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+			renderer.shadowMap.enabled = true;
 			document.body.appendChild( renderer.domElement );
 			
 			camera.position.set(139, 38, 99);
 			camera.rotation.set(-1.38, 0.82, 1.32);
-			
-			hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-			hemiLight.color.setHSL( 0.6, 1, 0.6 );
-			hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-			hemiLight.position.set( 0, 500, 0 );
-			scene.add( hemiLight );
-			
+			scene.add(new THREE.AmbientLight(0x666666));
+
 			dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
 			dirLight.color.setHSL( 0.1, 1, 0.95 );
 			dirLight.position.set( -1, 1.75, 1 );
@@ -113,7 +112,6 @@
 			dirLight.castShadow = true;
 			dirLight.shadow.mapSize.width = 1024;
 			dirLight.shadow.mapSize.height = 1024;
-
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
 			stats.domElement.style.top = '0px';
@@ -132,7 +130,7 @@
 					loadedtree = true;
 				}
 			);
-			console.log(tree);
+			//console.log(tree);
 		}
 		
 		function Loader() {
@@ -158,7 +156,7 @@
 		}
 		
 		function Render() {
-			console.log(camera);
+			//console.log(camera);
 			if(loadedHeightMap) {
 
 				if(terrain.length == 0) {
@@ -185,6 +183,8 @@
 							cube.position.z = j;
 							cube.position.y = alt==0? latocubo/2 : alt-latocubo/2;
 							terrain[i][j][0] = cube;
+							cube.castShadow = true;
+							cube.receiveShadow = true;
 							scene.add(cube);
 
 							
@@ -195,6 +195,8 @@
 									cube2.position.z = j;
 									cube2.position.y = latocubo/2 + w;
 									terrain[i][j][w+1] = cube2;
+									cube2.castShadow = true;
+									cube2.receiveShadow = true;
 									scene.add(cube2);
 								}
 							}
@@ -210,6 +212,8 @@
 										cube2.position.z = j;
 										cube2.position.y = latocubo/2 + w;
 										terrain[i][j][w+1] = cube2;
+										cube2.castShadow = true;
+										cube2.receiveShadow = true;
 										scene.add(cube2);
 								}
 							}
@@ -220,23 +224,22 @@
 					while(planted<toplant.length) {
 						var xcoord = Math.floor(Math.random()*(gridX-0)+0);
 						var zcoord = Math.floor(Math.random()*(gridZ-0)+0);
-						if(terrain[xcoord][zcoord].length > 2 && terrain[xcoord][zcoord].length < 11) {
+						if(terrain[xcoord][zcoord].length > 1 && terrain[xcoord][zcoord].length < 11) {
 							toplant[planted] = [xcoord, terrain[xcoord][zcoord].length, zcoord];
-							console.log(toplant[planted]);
+							//console.log(toplant[planted]);
 							planted++;
 						}
 					}
 
-					console.log(toplant);
-					console.log(loadedtree);
+					//console.log(toplant);
+					//console.log(loadedtree);
 					if(loadedtree) {
 						for(i=0; i<toplant.length; i++) {
 							var alb = tree.clone();
-							console.log(alb);
+							//console.log(alb);
 							for(x=0; x<alb.children.length; x++) {
 								x<=5? alb.children[x].material = wood : alb.children[x].material = leaves;
 							}
-								
 							alb.position.x = toplant[i][0];
 							alb.position.y = toplant[i][1];
 							alb.position.z = toplant[i][2];
