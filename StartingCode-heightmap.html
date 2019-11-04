@@ -26,11 +26,20 @@
 		<script>
 		
 		var scene, camera, renderer, controls, stats;
+		var loader = new THREE.ObjectLoader();
+
 		var loadedHeightMap = false;
 		var data;
 		var gridX, gridZ;
 		var terrain = new Array();
+
+		var loadedtree = false;
+		var tree;
+		var planted = 0;
+		var toplant = new Array(14);
+		
 		var latocubo = 1;
+
 		var imgl = new THREE.TextureLoader();
 		var grass = new THREE.MeshPhongMaterial({map: imgl.load("textures/grass.jpg")});
 		var side = new THREE.MeshPhongMaterial({map: imgl.load("textures/side.jpg")});
@@ -111,14 +120,24 @@
 			Coordinates.drawAllAxes();
 			
 			controls = new THREE.OrbitControls( camera );
-			
+		}
+
+		function TreeLoader() {
+			tree = new THREE.Object3D();
+			var albero = loader.load("models/scene.json", 
+				function(obj) {
+					tree = obj;
+					loadedtree = true;
+				}
+			);
+			console.log(tree);
 		}
 		
 		function Loader() {
 			data = new Array();
 			var imgLoader = new THREE.ImageLoader();
 
-			var img = imgLoader.load("textures/hm8.jpg",
+			var img = imgLoader.load("textures/hm7.png",
 				//onload callback
 				function (image) {
 					data = getHeightData(image, 0.1);
