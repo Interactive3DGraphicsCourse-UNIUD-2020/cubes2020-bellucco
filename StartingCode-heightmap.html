@@ -20,48 +20,54 @@
 		<script src="lib/stats.min.js"></script>
 		<script src="lib/Coordinates.js"></script>
 		<script src="lib/OrbitControls.js"></script>
+
 	</head>
 	<body>
 		
 		<script>
-		var rotation = 0;
-		var direction = true;
+		//variabili per il funzionanmento del programma
 
+		//variabili generali per il funzionamento di Three.js e WebGL
 		var scene, camera, renderer, controls, stats;
 		var loader = new THREE.ObjectLoader();
 
+		//variabili dove vengoono salvati i dati della heightmap caricata, per evitare di leggere i dati dal file ad ogni frame
 		var loadedHeightMap = false;
 		var data;
 		var gridX, gridZ;
 		var terrain = new Array();
 
+		//variabili per il caricamento degli alberi in posizioni casuali nella mappa
 		var loadedtree = false;
 		var tree;
 		var planted = 0;
 		var toplant = new Array(30);
 
-		var lsphere, lmaterial;
+		//luci della scena
 		var lava1, lava2, lava3;
 
+		//variabili per istanziare i cubi con cui viene costruita la mappa e tutti i materiali da assegnare
 		var latocubo = 1;
+		var g = new THREE.BoxBufferGeometry(latocubo, latocubo, latocubo);
 
 		var imgl = new THREE.TextureLoader();
 		var grass = new THREE.MeshLambertMaterial({map: imgl.load("textures/grass.jpg")});
 		var side = new THREE.MeshLambertMaterial({map: imgl.load("textures/side.jpg")});
 		var dirt = new THREE.MeshLambertMaterial({map: imgl.load("textures/dirt.jpg")});
-		var stone = new THREE.MeshLambertMaterial({map: imgl.load("textures/stone.jpg")})
-		var obsidian = new THREE.MeshLambertMaterial({map: imgl.load("textures/obsidian.jpg")})
+		//materiale alternativo per i blocchi di pietra con texture invece che colore mappato sull'altezza del cubo
+		//var stone = new THREE.MeshLambertMaterial({map: imgl.load("textures/stone.jpg")});
+		//var obsidian = new THREE.MeshLambertMaterial({map: imgl.load("textures/obsidian.jpg")})
 		var water = new THREE.MeshLambertMaterial({map: imgl.load("textures/water.png")})
-		var earthcube = [side, side, grass, side, side, side];
-
+		//texture multipla per i cubi d'erba in stile Minecraft
+		var earthcube = [side, side, grass, dirt, side, side];
+		//texture per i cubi degli alberi caricati a parte
 		var wood = new THREE.MeshLambertMaterial({map: imgl.load("textures/wood.jpg")});
 		var leaves = new THREE.MeshLambertMaterial({map: imgl.load("textures/leaves.png")})
 		
-		var g = new THREE.BoxGeometry(latocubo, latocubo, latocubo);
-		
+		//Funzione che carica i dati della heightmap in lettura per il displacement dei cubi successivo
 		function getHeightData(img,scale) {
   
-		 if (scale == undefined) scale=1;
+		if (scale == undefined) scale=1;
   
 		    var canvas = document.createElement( 'canvas' );
 		    canvas.width = img.width;
@@ -105,29 +111,22 @@
 			renderer.shadowMap.enabled = true;
 			document.body.appendChild( renderer.domElement );
 			
-			camera.position.set(160, 60, 60);
+			camera.position.set(150, 60, 60);
 
-			lsphere = new THREE.SphereBufferGeometry(1, 32, 32);
-            lmaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
-
+			//luce rossa dentro al vulcano
 			lava1 = new THREE.PointLight(0xff0000, 6, 20);
-			lava1.position.set(55,12,55);
-            lava1.add(new THREE.Mesh(lsphere, lmaterial));
-			//lava1.castShadow = true;
+			lava1.position.set(55,13,55);
             scene.add(lava1);
 
-			lmaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+			//luce bianca che illumina la scena
 			lava2 = new THREE.PointLight(0xffffff, 0.7, 400);
 			lava2.position.set(60,50,60);
-            lava2.add(new THREE.Mesh(lsphere, lmaterial));
 			lava2.castShadow = true;
             scene.add(lava2);
 
-			lmaterial = new THREE.MeshPhongMaterial({color: 0xfd6a02});
+			//luce arancione dentro al vulcano
 			lava3 = new THREE.PointLight(0xfd6a02, 6, 20);
-			lava3.position.set(65,12,65);
-            lava3.add(new THREE.Mesh(lsphere, lmaterial));
-			//lava3.castShadow = true;
+			lava3.position.set(65,13,65);
             scene.add(lava3);
 
 			stats = new Stats();
@@ -137,9 +136,12 @@
 			
 			Coordinates.drawAllAxes();
 			
+			//controllo della camera manuale
 			controls = new THREE.OrbitControls( camera );
 		}
 
+		//funzione di caricamento per i modelli degli alberi, creati con Three.js editor
+		//sono stati usati cubi di lato 1 come quelli utilizzati nella scena per coerenza di modellazione e di applicazione delle texture
 		function TreeLoader() {
 			tree = new THREE.Object3D();
 			var albero = loader.load("models/scene.json", 
@@ -148,24 +150,24 @@
 					loadedtree = true;
 				}
 			);
-			//console.log(tree);
 		}
 		
+		//funzione di caricamento dell'immagine heightmap che setta un flag per controllare quando è stata caricata
+		//in questo modo si evitano errori in caricamento e creazione della mappa prima che siano stati caricati i dati
 		function Loader() {
 			data = new Array();
 			var imgLoader = new THREE.ImageLoader();
 
 			var img = imgLoader.load("textures/hm7.png",
-				//onload callback
 				function (image) {
 					data = getHeightData(image, 0.1);
-					//console.log("data:", data);
 					loadedHeightMap = true;
 				}
 			);
 
 		}
 
+		//viene tenuto conto del tempo come parametro per i movimenti di rotazione delle luci
 		function Update(time) {
 			requestAnimationFrame( Update );
 			controls.update();  
@@ -173,90 +175,127 @@
 			Render(time);
 		}
 		
+		//funzione per il salvataggio dei cubi della scena secondo i valori della heightmap
 		function Render(time) {
-			//console.log(camera);
+
+			//esegue l'istanziamento dei cubi solo se i valori della mappa sono stati caricati
 			if(loadedHeightMap) {
 
+				//esegue l'istanziamento solo se i cubi non sono già stati caricati,
+				//basta aggiungerli una volta alla scena
 				if(terrain.length == 0) {
-
+					//numero di caselle disegnate
 					var num = 0;
 					var max = Math.max(...data);
 
 					for(i=0; i<gridX; i++) {
 						terrain[i] = new Array();
+
 						for(j=0; j<gridZ; j++) {
 							terrain[i][j] = new Array();
 
 							var alt = Math.floor(data[num]);
-							
-							var texture = Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<12? obsidian
-							// && j<gridZ-gridZ/2.2 && i<gridX-gridX/2.2 && j>gridZ/2.6? obsidian
-										: alt>max/5 ? stone 
-										: alt>max/10 ? dirt 
-										: alt==0 ? water 
-										: earthcube;
+							var c = Math.floor(max)-alt;
+
+							//per poter assegnare un nuovo colore ad ogni cubo, bisognare creare ogni volta un nuovo materiale
+							var stone = new THREE.MeshLambertMaterial();
+							stone.color = new THREE.Color("rgb("+c+","+c+","+c+")");							
+
+							//diverse condizioni di applicazione delle texture a seconda dell'altezza del cubo
+							var texture = 
+								//includere questa opzione per utilizzare la texture della pietra nera all'interno della cavità del vulcano
+								//Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<12? obsidian :
+								alt>max/5 ? stone
+								: alt>max/10 ? dirt 
+								: alt==0 ? water 
+								: earthcube;
 
 							cube = new THREE.Mesh(g, texture);
 							cube.position.x = i;
 							cube.position.z = j;
+							//spostamento di mezzo lato in altezza poichè vengo aggiunti a partire dal centro del cubo
 							cube.position.y = alt==0? latocubo/2 : alt-latocubo/2;
+							//riempimento della matrice di cubi per capire quando sono stati caricati
+							//e per poterli selezionare in seguito
 							terrain[i][j][0] = cube;
-							alt==0? cube.castShadow = false : cube.castShadow = true;
-							alt==0? cube.receiveShadow = false : cube.receiveShadow = true;
+							//applicazione delle ombre annullata per le superfici d'acqua
+							//e in mezzo al cratere del vulcano per vedere meglio le luci all'interno
+							alt==0 || Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<15? cube.castShadow = false : cube.castShadow = true;
+							alt==0 || Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<15? cube.receiveShadow = false : cube.receiveShadow = true;
 							scene.add(cube);
-
 							
+							//ottimizzazione per la creazione di cubi dove rimangono buchi dai dati della heightmap :
+
+							//per le posizioni ai bordi della griglia, crea tutti i cubi necessari per tutto lo spessore della mappa
+							//cioè fino a y=0
 							if(i==gridX-1 || j==gridZ-1 || i==0 || j==0) {
+								//crea tanti cubi quanti ce ne stanno da y=0 a y=altezza del cubo già aggiunto in base ai valori della heightmap
 								for(w=0; w<(alt-latocubo/latocubo); w++) {
+									//per ogni cubo la teture utilizzata sarà la stessa precedente,
+									//così come la posizione x,z
 									cube2 = new THREE.Mesh(g, texture);
 									cube2.position.x = i;
 									cube2.position.z = j;
 									cube2.position.y = latocubo/2 + w;
+									//anche questi cubi vengono aggiunti alla matrice del terreno in una posizione di profondità aggiuntiva
 									terrain[i][j][w+1] = cube2;
-									//cube2.castShadow = true;
-									cube2.receiveShadow = true;
+									Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<15? cube2.castShadow = false : cube2.castShadow = true;
+									Math.floor(Math.sqrt( (gridZ/2-j-4)*(gridZ/2-j-4) + (gridX/2-i-4)*(gridX/2-i-4)))<15? cube2.receiveShadow = false : cube2.receiveShadow = true;
 									scene.add(cube2);
 								}
 							}
+							//per le posizioni interne alla griglia, invece,
+							//aggiunge uno o più cubi solo sotto a quelli per cui almeno un adiacente (sia su x che su z) ha un'altezza più bassa
+							//quindi quelli sotto cui si vedrebbe un "buco" altrimenti
 							else if(Math.floor(data[num+1])<Math.floor(data[num]) 
 								|| Math.floor(data[num-1])<Math.floor(data[num])
 								|| Math.floor(data[num+gridX])<Math.floor(data[num])
 								|| Math.floor(data[num-gridX])<Math.floor(data[num])) 
 								{
+									//per ottimizzare ulteriormente vengono aggiunti i cubi una sola volta anche se più adiacenti hanno un'altezza più bassa
+									//il numero di cubi da aggiungere è determinato dalla differenza in altezza maggiore rispetto agli adiacenti
+
+									//massima differenza in altezza tra i cubi vicini
 									var maxdiff = Math.min(Math.floor(data[num+1]), Math.floor(data[num-1]), Math.floor(data[num+gridX]), Math.floor(data[num-gridX]));
+									//usando il lato del cubo come unità di misura (=1) calcoliamo quanti cubi disegnare
 									for(w=(maxdiff); w<(alt-latocubo/latocubo); w++) {
 										cube2 = new THREE.Mesh(g, texture);
 										cube2.position.x = i;
 										cube2.position.z = j;
 										cube2.position.y = latocubo/2 + w;
 										terrain[i][j][w+1] = cube2;
-										//cube2.castShadow = true;
+										cube2.castShadow = true;
 										cube2.receiveShadow = true;
 										scene.add(cube2);
 								}
 							}
+							//dopo aver disegnato una "colonna" di cubi, passiamo alla successiva
 							num++;
 						}
 					}
 
+					//dato che le posizioni degli alberi sono calcolate in modo casuale,
+					//serve un ciclo while poichè non sappiamo quanti cicli serviranno per generare delle coordinate corrette
+					//(ogni albero deve essere disegnato in un cubo non acquatico e sotto una certa altezza per evitare che finisca sulla cima del vulcano)
 					while(planted<toplant.length) {
 						var xcoord = Math.floor(Math.random()*(gridX-0)+0);
 						var zcoord = Math.floor(Math.random()*(gridZ-0)+0);
 						if(terrain[xcoord][zcoord].length > 1 && terrain[xcoord][zcoord].length < 11) {
+							//riempiamo una posizione dell'array apposito ogni volta che troviamo una posizione corretta
 							toplant[planted] = [xcoord, terrain[xcoord][zcoord].length, zcoord];
-							//console.log(toplant[planted]);
 							planted++;
 						}
 					}
 
-					//console.log(toplant);
-					//console.log(loadedtree);
+					//se il modello dell'albero è stato caricato, utilizza l'array delle posizioni per istanziare i cloni del modello
 					if(loadedtree) {
 						for(i=0; i<toplant.length; i++) {
 							var alb = tree.clone();
-							//console.log(alb);
+							//poichè è costituito da cubi, le texture devono essere assegnate ad ogni cubo singolo,
+							//i primi 5 sono utilizzati per il tronco, il resto per le foglie
 							for(x=0; x<alb.children.length; x++) {
 								x<=5? alb.children[x].material = wood : alb.children[x].material = leaves;
+								//per le ombre degli alberi ogni cubo deve riceve e castare ombre, essendo in realtà tutti cubi separati
 								alb.children[x].castShadow = true;
 								alb.children[x].receiveShadow = true;
 							}
@@ -272,37 +311,26 @@
 			};
 
 			time *= 0.0003;
-			/*
-			if (direction) {
-				rotation += 0.03;
-				camera.position.z -= rotation/2;
-				camera.position.x -= rotation/2;
-				if(rotation>3.5)
-					direction = false;
-			} else {
-				rotation -= 0.03;
-				camera.position.z += rotation/2;
-				camera.position.x += rotation/2;
-				if(rotation<0)
-					direction = true;
 
-			}
-			*/
-			lava1.position.x = Math.cos(time*0.5)*6 + 60;
-            lava1.position.z = Math.sin(time*0.5)*6 + 60;
+			//movimento delle luci per effetto ombre e luce magma del vulcano
+			lava1.position.y = Math.sin(time*4)*6 + 14;
 
-            lava2.position.x = Math.cos(time*0.5)*50 + 60;
-            lava2.position.z = Math.sin(time*0.5)*50 + 60;
+            lava2.position.x = Math.cos(time*0.5)*70 + 60;
+            lava2.position.z = Math.sin(time*0.5)*70 + 60;
 
-            lava3.position.x = Math.cos(time*0.7)*6 + 60;
-            lava3.position.z = Math.sin(time*0.7)*6 + 60;
+			lava3.position.y = Math.sin(time*4)*-6 + 14;
+			
 
+			//camera puntata verso il mezzo della mappa
 			camera.lookAt(new THREE.Vector3(gridX/2, 0, gridZ/2));
+
 			renderer.render(scene, camera);
 		}
 		
+		//prima lancia le funzioni di caricamento dei dati, e quando i flag sono positivi, renderizza i modelli
 		Loader();
 		TreeLoader();
+
 		Start();
 		Update();
 			
