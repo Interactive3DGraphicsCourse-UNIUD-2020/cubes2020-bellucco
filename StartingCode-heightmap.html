@@ -106,37 +106,28 @@
 			document.body.appendChild( renderer.domElement );
 			
 			camera.position.set(160, 60, 60);
-			
-			//scene.add(new THREE.AmbientLight(0x444444));
-
-			dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-			dirLight.color.setHSL( 0.1, 1, 0.95 );
-			dirLight.position.set( -1, 1.75, 1 );
-			dirLight.castShadow = true;
-			dirLight.shadow.mapSize.width = 1024;
-			dirLight.shadow.mapSize.height = 1024;
-
-			//scene.add( dirLight );
 
 			lsphere = new THREE.SphereBufferGeometry(1, 32, 32);
             lmaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
 
-			lava1 = new THREE.PointLight(0xff0000, 1, 200);
-			lava1.position.set(60,30,60);
+			lava1 = new THREE.PointLight(0xff0000, 6, 20);
+			lava1.position.set(55,12,55);
             lava1.add(new THREE.Mesh(lsphere, lmaterial));
-            //scene.add(lava1);
+			//lava1.castShadow = true;
+            scene.add(lava1);
 
-			lmaterial = new THREE.MeshPhongMaterial({color: 0xffff00});
-			lava2 = new THREE.PointLight(0xffff00, 1, 200);
-			lava2.position.set(60,40,60);
+			lmaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+			lava2 = new THREE.PointLight(0xffffff, 0.7, 400);
+			lava2.position.set(60,50,60);
             lava2.add(new THREE.Mesh(lsphere, lmaterial));
-            //scene.add(lava2);
+			lava2.castShadow = true;
+            scene.add(lava2);
 
 			lmaterial = new THREE.MeshPhongMaterial({color: 0xfd6a02});
-			lava3 = new THREE.PointLight(0xfd6a02, 1, 200);
-			lava3.position.set(60,20,60);
+			lava3 = new THREE.PointLight(0xfd6a02, 6, 20);
+			lava3.position.set(65,12,65);
             lava3.add(new THREE.Mesh(lsphere, lmaterial));
-			lava3.castShadow = true;
+			//lava3.castShadow = true;
             scene.add(lava3);
 
 			stats = new Stats();
@@ -175,14 +166,14 @@
 
 		}
 
-		function Update() {
+		function Update(time) {
 			requestAnimationFrame( Update );
 			controls.update();  
 			stats.update();
-			Render();
+			Render(time);
 		}
 		
-		function Render() {
+		function Render(time) {
 			//console.log(camera);
 			if(loadedHeightMap) {
 
@@ -210,8 +201,8 @@
 							cube.position.z = j;
 							cube.position.y = alt==0? latocubo/2 : alt-latocubo/2;
 							terrain[i][j][0] = cube;
-							cube.castShadow = true;
-							cube.receiveShadow = true;
+							alt==0? cube.castShadow = false : cube.castShadow = true;
+							alt==0? cube.receiveShadow = false : cube.receiveShadow = true;
 							scene.add(cube);
 
 							
@@ -222,7 +213,7 @@
 									cube2.position.z = j;
 									cube2.position.y = latocubo/2 + w;
 									terrain[i][j][w+1] = cube2;
-									cube2.castShadow = true;
+									//cube2.castShadow = true;
 									cube2.receiveShadow = true;
 									scene.add(cube2);
 								}
@@ -239,7 +230,7 @@
 										cube2.position.z = j;
 										cube2.position.y = latocubo/2 + w;
 										terrain[i][j][w+1] = cube2;
-										cube2.castShadow = true;
+										//cube2.castShadow = true;
 										cube2.receiveShadow = true;
 										scene.add(cube2);
 								}
@@ -266,6 +257,8 @@
 							//console.log(alb);
 							for(x=0; x<alb.children.length; x++) {
 								x<=5? alb.children[x].material = wood : alb.children[x].material = leaves;
+								alb.children[x].castShadow = true;
+								alb.children[x].receiveShadow = true;
 							}
 							alb.position.x = toplant[i][0];
 							alb.position.y = toplant[i][1];
@@ -278,7 +271,7 @@
 
 			};
 
-			rotation += 0.1;
+			time *= 0.0003;
 			/*
 			if (direction) {
 				rotation += 0.03;
@@ -295,19 +288,15 @@
 
 			}
 			*/
-			/*
-			lava1.position.x = Math.cos(rotation*0.3)*20;
-            lava1.position.y = Math.sin(rotation*0.5)*10;
-            lava1.position.z = Math.cos(rotation*0.7)*15;
+			lava1.position.x = Math.cos(time*0.5)*6 + 60;
+            lava1.position.z = Math.sin(time*0.5)*6 + 60;
 
-            lava2.position.x = Math.cos(rotation*0.7)*15;
-            lava2.position.y = Math.sin(rotation*0.3)*20;
-            lava2.position.z = Math.cos(rotation*0.5)*10;
+            lava2.position.x = Math.cos(time*0.5)*50 + 60;
+            lava2.position.z = Math.sin(time*0.5)*50 + 60;
 
-            lava3.position.x = Math.cos(rotation*0.5)*15;
-            lava3.position.y = Math.sin(rotation*0.7)*10;
-            lava3.position.z = Math.cos(rotation*0.3)*20;
-*/
+            lava3.position.x = Math.cos(time*0.7)*6 + 60;
+            lava3.position.z = Math.sin(time*0.7)*6 + 60;
+
 			camera.lookAt(new THREE.Vector3(gridX/2, 0, gridZ/2));
 			renderer.render(scene, camera);
 		}
