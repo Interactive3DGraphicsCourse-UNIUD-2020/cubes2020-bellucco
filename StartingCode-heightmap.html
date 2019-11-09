@@ -24,7 +24,9 @@
 	<body>
 		
 		<script>
-		
+		var rotation = 0;
+		var direction = true;
+
 		var scene, camera, renderer, controls, stats;
 		var loader = new THREE.ObjectLoader();
 
@@ -37,7 +39,10 @@
 		var tree;
 		var planted = 0;
 		var toplant = new Array(30);
-		
+
+		var lsphere, lmaterial;
+		var lava1, lava2, lava3;
+
 		var latocubo = 1;
 
 		var imgl = new THREE.TextureLoader();
@@ -93,25 +98,47 @@
 
 			renderer = new THREE.WebGLRenderer( {antialias: true} );
 			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.setClearColor( 0xf0f0f0 );
+			//renderer.setClearColor( 0xf0f0f0 );
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.gammaInput = true;
 			renderer.gammaOutput = true;
 			renderer.shadowMap.enabled = true;
 			document.body.appendChild( renderer.domElement );
 			
-			camera.position.set(139, 38, 99);
-			camera.rotation.set(-1.38, 0.82, 1.32);
-			scene.add(new THREE.AmbientLight(0x666666));
+			camera.position.set(160, 60, 60);
+			
+			//scene.add(new THREE.AmbientLight(0x444444));
 
-			dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+			dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
 			dirLight.color.setHSL( 0.1, 1, 0.95 );
 			dirLight.position.set( -1, 1.75, 1 );
-			dirLight.position.multiplyScalar( 50 );
-			scene.add( dirLight );
 			dirLight.castShadow = true;
 			dirLight.shadow.mapSize.width = 1024;
 			dirLight.shadow.mapSize.height = 1024;
+
+			//scene.add( dirLight );
+
+			lsphere = new THREE.SphereBufferGeometry(1, 32, 32);
+            lmaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
+
+			lava1 = new THREE.PointLight(0xff0000, 1, 200);
+			lava1.position.set(60,30,60);
+            lava1.add(new THREE.Mesh(lsphere, lmaterial));
+            //scene.add(lava1);
+
+			lmaterial = new THREE.MeshPhongMaterial({color: 0xffff00});
+			lava2 = new THREE.PointLight(0xffff00, 1, 200);
+			lava2.position.set(60,40,60);
+            lava2.add(new THREE.Mesh(lsphere, lmaterial));
+            //scene.add(lava2);
+
+			lmaterial = new THREE.MeshPhongMaterial({color: 0xfd6a02});
+			lava3 = new THREE.PointLight(0xfd6a02, 1, 200);
+			lava3.position.set(60,20,60);
+            lava3.add(new THREE.Mesh(lsphere, lmaterial));
+			lava3.castShadow = true;
+            scene.add(lava3);
+
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
 			stats.domElement.style.top = '0px';
@@ -250,6 +277,38 @@
 				}
 
 			};
+
+			rotation += 0.1;
+			/*
+			if (direction) {
+				rotation += 0.03;
+				camera.position.z -= rotation/2;
+				camera.position.x -= rotation/2;
+				if(rotation>3.5)
+					direction = false;
+			} else {
+				rotation -= 0.03;
+				camera.position.z += rotation/2;
+				camera.position.x += rotation/2;
+				if(rotation<0)
+					direction = true;
+
+			}
+			*/
+			/*
+			lava1.position.x = Math.cos(rotation*0.3)*20;
+            lava1.position.y = Math.sin(rotation*0.5)*10;
+            lava1.position.z = Math.cos(rotation*0.7)*15;
+
+            lava2.position.x = Math.cos(rotation*0.7)*15;
+            lava2.position.y = Math.sin(rotation*0.3)*20;
+            lava2.position.z = Math.cos(rotation*0.5)*10;
+
+            lava3.position.x = Math.cos(rotation*0.5)*15;
+            lava3.position.y = Math.sin(rotation*0.7)*10;
+            lava3.position.z = Math.cos(rotation*0.3)*20;
+*/
+			camera.lookAt(new THREE.Vector3(gridX/2, 0, gridZ/2));
 			renderer.render(scene, camera);
 		}
 		
