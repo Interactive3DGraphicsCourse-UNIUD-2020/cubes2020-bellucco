@@ -22,7 +22,7 @@ La funzione di caricamento dell'immagine e di lettura dei dati, poichè potrebbe
 
 Inizialmente la mappa è stata generata con parallelepipedi di altezza pari al valore presente in ogni pixel. Pensando poi all'applicazione delle texture di dimensione quadrata (e quindi adatte ad un cubo), si è deciso di utilizzare dei cubi di dimensione unitaria (nelle immagini ridotto per visualizzare la corretta creazione della griglia). In questo modo però è necessario aggiungere, per ogni posizione, un numero di cubi pari al valore di altezza massima della posizione / il lato del cubo selezionato.
 
-![mappa1](images/mappa2.png)
+![mappa1](images/mappa3.png)
 
 L'utilizzo dei cubi però ha portato ad primo problema, cioè l'aumento massiccio del numero di mesh da istanziare e visualizzare a schermo con evidente perdita di framerate. La soluzione è stata trovata tramite alcuni accorgimenti per diminuire il numero di cubi da utilizzare:
 - Non tutte le posizioni della griglia necessitano di cubi sottostanti, poichè essi non vengono visti a schermo
