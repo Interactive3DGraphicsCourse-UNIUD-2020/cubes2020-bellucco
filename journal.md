@@ -31,6 +31,8 @@ L'utilizzo dei cubi però ha portato ad primo problema, cioè l'aumento massicci
 
 ![mappa1](images/mappa4.png)
 
+(Visuale "da sotto" per vedere le cavità lasciate dai cubi che non vengono istanziati dall'algoritmo)
+
 ## 2. Generazione casuale alberi
 
 
@@ -46,12 +48,33 @@ Le posizioni sono generate casualmente all'interno del terreno tenendo conto del
 
 Dato che al variare della mappa cambieranno le posizioni dove un albero non può essere posizionato, e scrivere le condizioni scegliendo delle precise aree di celle sarebbe controproduttivo, servirà un ciclo while che genera coordinate di posizionamento finchè non ne trova abbastanza adatte per il numero selezionato di alberi.
 
+![alberi1](images/alberi1.png)
+
 Non viene controllato che gli alberi non vengano posizionati più volte sulla stessa casella, ma dato il numero molto elevato di posizioni possibili (almeno nelle mappe utilizzate come prova) non ha mai dato problemi a riguardo. In caso basterà cambiare le condizioni ed effettuare dei controlli, o ridurre il numero di alberi da generare.
 
 Ogni albero è un clone del modello caricato dal programma.
 
-![alberi1](images/alberi1.png)
-
 ![alberi2](images/alberi2.png)
 
+## 3. Applicazione texture
 
+Per rendere la scena più realistica, si è scelto di utilizzare diverse texture da applicare ai cubi a seconda dei valori di altezza che essi raggiungono nel terreno.
+
+![](images/texture1.png)
+
+- Per i cubi ad altezza 0 è stata utilizzata una texture acquatica
+- Per i cubi ai primi livelli di altezza sono state usate una texture con erba e una di terra per evitare troppo di stacco con la successiva
+- A partire dalla base del vulcano, è stata utilizzata una semplice colorazione del materiale, con intensità del nero che cresce proporzionalmente all'altezza, per creare l'effetto di pietra del vulcano che si scurisce verso il cratere
+
+![](images/texture2.png)
+
+L'assegnamento delle texture è legato all'altezza massima del terreno nella scena, quindi anche cambiando immagine (heightmap) si otterrà un'assegnazione coerente delle texture a tutti i cubi.
+
+![](images/texture4.png) 
+![](images/texture3.png)
+
+A causa di errori in esportazione per le texture assegnate al modello degli alberi con il three.js editor, è stato necessario riassegnare anche quelle. Semplicemente, sapendo che i primi 5 cubi del modello costituiscono il tronco, scorrendo i figli del modello importato si assegna la texture del legno ai primi 5 e successivamente la texture delle foglie.
+
+![](images/texture.png)
+
+## 4. Luci
