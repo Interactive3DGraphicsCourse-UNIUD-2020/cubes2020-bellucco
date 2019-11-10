@@ -29,7 +29,7 @@ L'utilizzo dei cubi però ha portato ad primo problema, cioè l'aumento massicci
 - Solo i bordi della mappa devono essere completamente coperti per dare l'impressione di un "solido pieno" e del terreno come un elemento unico
 - Sono necessari dei cubi aggiuntivi nei casi in cui, per ogni cubo interno, quelli adiacenti abbiano una differenza di altezza maggiore dell'altezza di un cubo (quindi nel caso in cui rimangano dei "buchi" in altezza dove ci sono particolari dislivelli). In quest'ultimo caso basta aggiungere un numero di cubi pari alla differenza in altezza maggiore rispetto ai cubi adiacenti / lato di un cubo.
 
-![mappa1](images/mappa2.png)
+![mappa1](images/mappa4.png)
 
 ## 2. Generazione casuale alberi
 
