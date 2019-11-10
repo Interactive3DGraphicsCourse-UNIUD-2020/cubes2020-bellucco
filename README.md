@@ -12,6 +12,8 @@ Il progetto consiste nella realizzazione di un terreno costituito da cubi di ugu
 La mappa è stata generata a partire dai dati presi da un'immagine a piacere in bianco e nero, utilizzata come heightmap.
 La scelta è ricaduta sulla mappa di profondità di un'area contenente un vulcano, in modo da avere più livelli di altezza da poter analizzare e diverse variazioni irregolari, così da poter capire come gestire anche le eccezioni che altrimenti non sarebbero state visibili in una pianta più regolare.
 
+![heightmap](textures/hm7.png)
+
 È stata utilizzata un'ottimizzazione nella creazione dei cubi, per evitare di aggiungere elementi alla scena che non sarebbero risultati visibili o utili in alcun modo nella visualizzazione (così da mantenere il framerate accettabile almeno fino all'aggiunta delle luci e delle ombre in movimento).
 
 Come si può vedere, infatti, viene disegnato solo il "guscio" del terreno visualizzato: non vi sono parti piene dove i cubi non hanno bisogno di essere disegnati.
