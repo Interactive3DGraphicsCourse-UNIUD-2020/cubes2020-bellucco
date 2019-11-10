@@ -33,7 +33,7 @@ Tutti i file delle texture e della heightmap sono presenti nella cartella "textu
 
 ## Alberi
 
-Poi sono stati aggiunti i modelli degli alberi, questi realizzati invece con three.js editor e importati successivamente nella scena. Il modello è unico e viene clonato più volte per il numero di alberi da posizionare, scelto a priori (nella cartella "models", l'oggetto "tree.json").
+Sono stati aggiunti i modelli degli alberi, questi realizzati invece con three.js editor e importati successivamente nella scena. Il modello è unico e viene clonato più volte per il numero di alberi da posizionare, scelto a priori (nella cartella "models", l'oggetto "tree.json").
 
 A causa di problemi con l'esportazione delle texture assegnate nell'editor, le stesse sono state riassegnate direttamente nel programma (sapendo che i primi 5 cubi nell'oggetto sono quelli facenti parte del tronco, è bastato assegnare i materiali ai singoli cubi in ordine).
 
