@@ -2,9 +2,8 @@
 
 Corso anno accademico 2019-2020
 
-Niccolò Carlo Bellucco
-
-Matricola: 145799
+## **Niccolò Carlo Bellucco**
+Matricola: **145799**
 
 # Heightmap Volcano
 
@@ -37,7 +36,7 @@ Sono stati aggiunti i modelli degli alberi, questi realizzati invece con three.j
 
 A causa di problemi con l'esportazione delle texture assegnate nell'editor, le stesse sono state riassegnate direttamente nel programma (sapendo che i primi 5 cubi nell'oggetto sono quelli facenti parte del tronco, è bastato assegnare i materiali ai singoli cubi in ordine).
 
-Le posizioni degli alberi sono generate casualmente ad ogni lancio del programma (a volte serve ricaricare la pagina nel caso il modello non venga caricato in un primo momento), ma vengono comunque sottoposte a dei costraints per non essere posizionate nei cubi d'acqua o troppo in alto lungo il vulcano.
+Le posizioni degli alberi sono generate casualmente ad ogni esecuzione del programma (a volte serve ricaricare la pagina nel caso il modello non venga caricato in un primo momento), ma vengono comunque sottoposte a dei costraints per non essere posizionate nei cubi d'acqua o troppo in alto lungo il vulcano.
 
 ## Luci
 
